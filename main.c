@@ -9,18 +9,6 @@
 #define MAX_CMD_LEN 256
 #define MAX_OUTPUT_LEN 1024
 
-char* run_command(const char* cmd) {
-  static char output[MAX_OUTPUT_LEN];
-  FILE* fp = popen(cmd, "r");
-  if (fp == NULL) {
-    printf("Failed to run command\n");
-    exit(1);
-  }
-  fgets(output, sizeof(output), fp);
-  pclose(fp);
-  return output;
-}
-
 unsigned long get_mem_value(const char *field) {
   FILE *fp;
   char line[256];
@@ -43,6 +31,24 @@ unsigned long get_mem_value(const char *field) {
   return value;
 }
 
+void get_os(char *output) {
+  FILE *fp;
+  char line[256];
+
+  fp = fopen("/etc/os-release", "r");
+  if (fp == NULL) {
+    perror("Error opening file");
+    exit(1);
+  }
+
+  while (fgets(line, sizeof(line), fp)) {
+    if (strncmp(line, "NAME=", 4) == 0) {
+      sscanf(line, "NAME=\"%[^\"]\"", output);
+      break;
+    }
+  }
+}
+
 int main() {
   struct passwd *pw = getpwuid(getuid());
   char hostname[256];
@@ -58,7 +64,6 @@ int main() {
   long uptime_hours = (sys_info.uptime % 86400) / 3600;
   long uptime_minutes = (sys_info.uptime % 3600) / 60;
 
-  // format to %d d, %d h, %d m, %d s
   char uptime_str[256];
   char *uptime_str_ptr = uptime_str;
   if (uptime_days) {
@@ -75,17 +80,18 @@ int main() {
   }
   sprintf(uptime_str_ptr, "%jds", sys_info.uptime % 60);
           
-
   long total_ram = get_mem_value("MemTotal:") / 1024;
   long used_ram = total_ram - get_mem_value("MemAvailable:") / 1024;
   
-
   char* wm = getenv("DESKTOP_SESSION");
   char* display_server = getenv("XDG_SESSION_TYPE");
 
+  char os[256];
+  get_os(os);
+
   printf("\033[1;34m                 \033[4m%s\033[0m\033[1;37m@\033[0m\033[1;34m\033[4m%s\033[0m\033[1;37m\n",
          pw->pw_name, hostname);
-  printf("\033[1;33m       __        \033[0m\033[1;35mOS:\033[0m Arch Linux\n");
+  printf("\033[1;33m       __        \033[0m\033[1;35mOS:\033[0m %s\n", os);
   printf("\033[1;33m      // \\       \033[0m\033[1;35mKernel:\033[0m %s\n", uname_data.release);
   printf("\033[1;33m      \\\\_/ /     \033[0m\033[1;35mUptime:\033[0m %s\n", uptime_str);
   printf("\033[1;33m    --(||)(')    \033[0m\033[1;35mRAM:\033[0m %ld MB / %ld MB\n",
