@@ -1,0 +1,14 @@
+{
+  "makefile.launchConfigurations": [
+    {
+      "cwd": "/home/bea/beefetch",
+      "binaryPath": "/home/bea/beefetch/main",
+      "binaryArgs": []
+    },
+    {
+      "cwd": "/home/bea/beefetch",
+      "binaryPath": "/home/bea/beefetch/beefetch",
+      "binaryArgs": []
+    }
+  ]
+}
