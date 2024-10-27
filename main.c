@@ -107,7 +107,7 @@ int main() {
          "37m\n",
          pw->pw_name, hostname);
   printf("\033[1;33m       __        \033[0m\033[1;35mOS:\033[0m %s\n", os);
-  printf("\033[1;33m
+  printf("\033[1;33m      // \\       \033[0m\033[1;35mKernel:\033[0m %s\n",
          uname_data.release);
   printf("\033[1;33m      \\\\_/ /     \033[0m\033[1;35mUptime:\033[0m %s\n",
          uptime_str);
